@@ -1,6 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { find } = require('domutils');
+const fastcsv = require("fast-csv");
+const fs = require("fs");
 
 const scraper = ()=>{
     sc = {};
@@ -39,7 +40,7 @@ const scraper = ()=>{
         /////
 
 
-        ////scarp data in item
+        ////scrap data in item
         let data = [];
         for (let item of resultItems){
             let content = await axios(item.url);
@@ -68,11 +69,21 @@ const scraper = ()=>{
             data.push(obj);
         }
         //console.log('Total details scraped: ', data.length);
+
+        //Export to CSV
+        const ws = fs.createWriteStream("data.csv");
+        fastcsv
+            .write(data, { headers: true })
+            .on("finish", function() {
+            console.log("Write to CSV successfully");
+            })
+            .pipe(ws);
+
         return data;
     }
 
     sc.linkedIn = async (location) => {
-        //API ofr pagination
+        //API for pagination
         //https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?location=${location}&position=1&pageNum=0&start=50
         
         let locationParsed = location.replace(/\s/g,'%20');
@@ -81,7 +92,6 @@ const scraper = ()=>{
         let $ = cheerio.load(mainContent.data);
         let items = [];
         $("#main-content ul li").each(function(){
-            //console.log($(this).html());
             let title = $(this).find(".base-search-card__title").text().trim();
             let company = $(this).find(".base-search-card__subtitle").text().trim();
             let url = $(this).find("a").attr('href');

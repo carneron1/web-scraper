@@ -8,9 +8,9 @@ app.listen('3000', () => console.log('Scraper running'));
 
 //run async to use await
 let runAsync = async () => {
-    //let response = scrapper.load();
-    let response = await scrapper.linkedIn('miami');
-    console.log(response);
+    //let response = await scrapper.load();
+    //let response = await scrapper.linkedIn('miami');
+    //console.log(response);
 }
 
 runAsync();
